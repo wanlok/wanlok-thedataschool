@@ -1,4 +1,6 @@
 import csv
+import json
+import urllib.request
 
 
 def get_name_and_time(x):
@@ -72,11 +74,24 @@ def get_goals_by_years():
 #         print(f'{year} {year_dict[year]}')
 
 
+# if __name__ == '__main__':
+#     players = set()
+#     year_dict = get_goals_by_years()
+#     for year in year_dict:
+#         for player in year_dict[year]:
+#             players.add(player[0])
+#     for player in players:
+#         print(player)
+
 if __name__ == '__main__':
-    players = set()
-    year_dict = get_goals_by_years()
-    for year in year_dict:
-        for player in year_dict[year]:
-            players.add(player[0])
-    for player in players:
-        print(player)
+    with urllib.request.urlopen('https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=Cristiano%20Ronaldo&rvprop=content&format=json') as url:
+        data = json.load(url)
+        pages = data['query']['pages']
+        for key in pages:
+            revisions = pages[key]['revisions']
+            for revision in revisions:
+                content = revision['*']
+                start = content.index('| years1')
+                end = content.index('| nationalyears1')
+                print(content[start:end])
+
