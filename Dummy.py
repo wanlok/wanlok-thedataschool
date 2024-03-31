@@ -66,7 +66,17 @@ def get_goals_by_years():
     return year_dict
 
 
+# if __name__ == '__main__':
+#     year_dict = get_goals_by_years()
+#     for year in year_dict:
+#         print(f'{year} {year_dict[year]}')
+
+
 if __name__ == '__main__':
+    players = set()
     year_dict = get_goals_by_years()
     for year in year_dict:
-        print(f'{year} {year_dict[year]}')
+        for player in year_dict[year]:
+            players.add(player[0])
+    for player in players:
+        print(player)
