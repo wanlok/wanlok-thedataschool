@@ -88,16 +88,18 @@ def get_clubs(name):
     clubs = []
     titles = urllib.parse.quote(name)
     url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
-    print(url_string)
+    # print(url_string)
     with urllib.request.urlopen(url_string) as url:
         try:
             data = json.load(url)
             pages = data['query']['pages']
             for key in pages:
-                club = None
+                # club = None
                 content = pages[key]['revisions'][-1]['*']
+                # clubs.append(content)
                 start = content.index('| years1')
                 end = content.index('| nationalyears1')
+                # clubs.append(content[start:end])
                 for line in content[start:end].split('|'):
                     line = line.strip()
                     if line[0:5] == 'years':
@@ -105,7 +107,7 @@ def get_clubs(name):
                             clubs.append(club)
                         club = [line.split('=')[1].strip()]
                     elif line[0:5] == 'clubs':
-                        club.append(line.split('=')[1].replace("[[", '').replace(']]', '').replace('→', '').strip())
+                        club.append(line.split('=')[1].replace('[[', '').replace(']]', '').replace('→', '').replace('(loan)', '').strip())
             if club is not None:
                 clubs.append(club)
         except:
@@ -114,4 +116,12 @@ def get_clubs(name):
 
 
 if __name__ == '__main__':
-    print(get_clubs('Hwang Hee-chan'))
+    # names = set()
+    # year_dict = get_goals_by_years()
+    # for year in year_dict:
+    #     for player in year_dict[year]:
+    #         names.add(player[0])
+    # for name in names:
+    #     print(f'"{name}","{get_clubs(name)}"')
+    print(get_clubs('Hans Krankl'))
+
