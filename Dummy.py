@@ -68,6 +68,41 @@ def get_goals_by_years():
     return year_dict
 
 
+def download(name):
+    contents = []
+    titles = urllib.parse.quote(name)
+    url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
+    with urllib.request.urlopen(url_string) as url:
+        data = json.load(url)
+        pages = data['query']['pages']
+        for key in pages:
+            if key != '-1':
+                revision = pages[key]['revisions'][-1]['*']
+                if revision[0:9] == '#REDIRECT':
+                    contents = download(revision[revision.index('[[')+2:revision.index(']]')])
+                else:
+                    try:
+                        start = revision.index('years1')
+                        end = revision.index('nationalyears1')
+                    except:
+                        break
+                    contents.append(revision[start:end])
+    return contents
+
+
+# def download_2(name):
+#     content = []
+#     titles = urllib.parse.quote(name)
+#     url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
+#     with urllib.request.urlopen(url_string) as url:
+#         try:
+#
+#         except:
+#             pass
+#     return content
+
+
+
 # if __name__ == '__main__':
 #     year_dict = get_goals_by_years()
 #     for year in year_dict:
@@ -84,37 +119,6 @@ def get_goals_by_years():
 #         print(player)
 
 
-def get_clubs(name):
-    clubs = []
-    titles = urllib.parse.quote(name)
-    url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
-    # print(url_string)
-    with urllib.request.urlopen(url_string) as url:
-        try:
-            data = json.load(url)
-            pages = data['query']['pages']
-            for key in pages:
-                # club = None
-                content = pages[key]['revisions'][-1]['*']
-                # clubs.append(content)
-                start = content.index('| years1')
-                end = content.index('| nationalyears1')
-                # clubs.append(content[start:end])
-                for line in content[start:end].split('|'):
-                    line = line.strip()
-                    if line[0:5] == 'years':
-                        if club is not None:
-                            clubs.append(club)
-                        club = [line.split('=')[1].strip()]
-                    elif line[0:5] == 'clubs':
-                        club.append(line.split('=')[1].replace('[[', '').replace(']]', '').replace('→', '').replace('(loan)', '').strip())
-            if club is not None:
-                clubs.append(club)
-        except:
-            pass
-    return clubs
-
-
 if __name__ == '__main__':
     # names = set()
     # year_dict = get_goals_by_years()
@@ -122,6 +126,5 @@ if __name__ == '__main__':
     #     for player in year_dict[year]:
     #         names.add(player[0])
     # for name in names:
-    #     print(f'"{name}","{get_clubs(name)}"')
-    print(get_clubs('Hans Krankl'))
-
+    #     print(f'"{name}","{download(name)}"')
+    print(download('Kudus Mohammed'))

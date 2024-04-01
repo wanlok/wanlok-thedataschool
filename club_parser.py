@@ -1,5 +1,8 @@
 import csv
 
+from Dummy import download
+
+
 def get_player_clubs():
     player_dict = dict()
     with open('Player Clubs.csv', encoding='utf-8') as csv_file:
@@ -28,7 +31,9 @@ def get_player_clubs():
                 j = i
                 while j not in club_dict:
                     j = j + 1
-                clubs.append(club_dict[j])
+                club = club_dict[j]
+                if 'period' in club and 'club' in club:
+                    clubs.append(club)
             player_dict[name] = clubs
     return player_dict
 
@@ -36,6 +41,9 @@ def get_player_clubs():
 if __name__ == '__main__':
     player_clubs = get_player_clubs()
     for player in player_clubs:
-        print(f'{player} {player_clubs[player]}')
+        clubs = player_clubs[player]
+        if len(clubs) == 0:
+            # print(f'{player} {player_clubs[player]}')
+            print(f'"{player}","{download(player)}"')
 
 
