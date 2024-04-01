@@ -83,15 +83,35 @@ def get_goals_by_years():
 #     for player in players:
 #         print(player)
 
-if __name__ == '__main__':
-    with urllib.request.urlopen('https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=Cristiano%20Ronaldo&rvprop=content&format=json') as url:
-        data = json.load(url)
-        pages = data['query']['pages']
-        for key in pages:
-            revisions = pages[key]['revisions']
-            for revision in revisions:
-                content = revision['*']
+
+def get_clubs(name):
+    clubs = []
+    titles = urllib.parse.quote(name)
+    url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
+    print(url_string)
+    with urllib.request.urlopen(url_string) as url:
+        try:
+            data = json.load(url)
+            pages = data['query']['pages']
+            for key in pages:
+                club = None
+                content = pages[key]['revisions'][-1]['*']
                 start = content.index('| years1')
                 end = content.index('| nationalyears1')
-                print(content[start:end])
+                for line in content[start:end].split('|'):
+                    line = line.strip()
+                    if line[0:5] == 'years':
+                        if club is not None:
+                            clubs.append(club)
+                        club = [line.split('=')[1].strip()]
+                    elif line[0:5] == 'clubs':
+                        club.append(line.split('=')[1].replace("[[", '').replace(']]', '').replace('→', '').strip())
+            if club is not None:
+                clubs.append(club)
+        except:
+            pass
+    return clubs
 
+
+if __name__ == '__main__':
+    print(get_clubs('Hwang Hee-chan'))
