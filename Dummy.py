@@ -61,6 +61,10 @@ def get_goals_by_years():
     year_dict = {}
     for row in get_rows():
         year = row[0]
+        for player in row[2]:
+            player[0] = f'{row[1]},{player[0]}'
+        for player in row[4]:
+            player[0] = f'{row[3]},{player[0]}'
         add_goals(year_dict, year, row[2])
         add_goals(year_dict, year, row[4])
     for year in year_dict:
@@ -120,11 +124,13 @@ def download(name):
 
 
 if __name__ == '__main__':
-    # names = set()
-    # year_dict = get_goals_by_years()
-    # for year in year_dict:
-    #     for player in year_dict[year]:
-    #         names.add(player[0])
+    names = set()
+    year_dict = get_goals_by_years()
+    for year in year_dict:
+        print(year_dict[year])
+        # for player in year_dict[year]:
+        #     print(player)
+        #     names.add(player[0])
     # for name in names:
     #     print(f'"{name}","{download(name)}"')
-    print(download('Kudus Mohammed'))
+    # print(download('Kudus Mohammed'))
