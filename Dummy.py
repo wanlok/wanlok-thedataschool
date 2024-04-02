@@ -72,7 +72,7 @@ def get_goals_by_years():
     return year_dict
 
 
-def download(year, country, name):
+def download(country, name, years):
     content = ''
     titles = urllib.parse.quote(name)
     url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
@@ -83,19 +83,19 @@ def download(year, country, name):
             if key != '-1':
                 revision = pages[key]['revisions'][-1]['*']
                 if revision[0:9] == '#REDIRECT':
-                    content = download(revision[revision.index('[[')+2:revision.index(']]')])
+                    print(revision)
+                    content = download(country, revision[revision.index('[[')+2:revision.index(']]')], years)
                 else:
                     try:
                         start = revision.index('years1')
                         end = revision.index('nationalyears1')
                         content = revision[start:end]
                     except:
-                        match_lines = []
-                        for line in revision.split('\n'):
-                            print(f'LLLLL {line}')
-                        print(f'{year} {country} {name}')
+                        # match_lines = []
+                        # for line in revision.split('\n'):
+                        #     print(f'LLLLL {line}')
                         print(revision)
-                        break
+                    break
     return content
 
 
@@ -164,13 +164,23 @@ def get_empty_players():
                 info_dict[key].append(year)
             else:
                 info_dict[key] = [year]
+    country_set = set()
     with open('data.csv', encoding='utf-8') as csv_file:
         for row in csv.reader(csv_file, delimiter=','):
             if len(row[1]) == 0:
                 for key in info_dict:
-                    _, name = key.split(',')
-                    if row[0] == name:
-                        print(f'{key},{info_dict[key]}')
+                    country, name = key.split(',')
+                    if row[0] == name and country == 'Brazil':
+                        years = info_dict[key]
+                        print(f'= = = = = = = = = = = = = = = = = = = = = = = = = = = = = =')
+                        print(f'{country}, {name}, {years}')
+                        download(country, name, years)
+                        country_set.add(country)
+    for country in country_set:
+        print(country)
+
+
+
 
 
 # if __name__ == '__main__':
