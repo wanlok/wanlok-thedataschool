@@ -72,7 +72,7 @@ def get_goals_by_years():
     return year_dict
 
 
-def download(name):
+def download(year, country, name):
     content = ''
     titles = urllib.parse.quote(name)
     url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
@@ -88,9 +88,14 @@ def download(name):
                     try:
                         start = revision.index('years1')
                         end = revision.index('nationalyears1')
+                        content = revision[start:end]
                     except:
+                        match_lines = []
+                        for line in revision.split('\n'):
+                            print(f'LLLLL {line}')
+                        print(f'{year} {country} {name}')
+                        print(revision)
                         break
-                    content = revision[start:end]
     return content
 
 
@@ -121,10 +126,51 @@ def download_all():
     year_dict = get_goals_by_years()
     for year in year_dict:
         for player in year_dict[year]:
-            info_set.add(player[0])
+            _, country, name = player[0].split(',')
+            info_set.add(f'{country},{name}')
     for info in info_set:
-        year, country, name = info.split(',')
+        country, name = info.split(',')
         print(f'"{name}","{[download(name)]}"')
+
+
+
+
+def get_player_countries():
+    player_countries = []
+    names = []
+    year_dict = get_goals_by_years()
+    for year in year_dict:
+        for player in year_dict[year]:
+            names.append(player[0])
+    with open('Player Clubs.csv', encoding='utf-8') as csv_file:
+        for row in csv.reader(csv_file, delimiter=','):
+            target = row[0]
+
+            for name in names:
+                if target in name:
+                    player_countries.append(name)
+                    break
+    return player_countries
+
+
+def get_empty_players():
+    info_dict = dict()
+    year_dict = get_goals_by_years()
+    for year in year_dict:
+        for player in year_dict[year]:
+            year, country, name = player[0].split(',')
+            key = f'{country},{name}'
+            if key in info_dict:
+                info_dict[key].append(year)
+            else:
+                info_dict[key] = [year]
+    with open('data.csv', encoding='utf-8') as csv_file:
+        for row in csv.reader(csv_file, delimiter=','):
+            if len(row[1]) == 0:
+                for key in info_dict:
+                    _, name = key.split(',')
+                    if row[0] == name:
+                        print(f'{key},{info_dict[key]}')
 
 
 # if __name__ == '__main__':
@@ -144,5 +190,6 @@ def download_all():
 
 
 if __name__ == '__main__':
-    download_all()
+    # download_all()
+    get_empty_players()
     # download('Júnior')
