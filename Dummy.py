@@ -62,9 +62,9 @@ def get_goals_by_years():
     for row in get_rows():
         year = row[0]
         for player in row[2]:
-            player[0] = f'{row[1]},{player[0]}'
+            player[0] = f'{year},{row[1]},{player[0]}'
         for player in row[4]:
-            player[0] = f'{row[3]},{player[0]}'
+            player[0] = f'{year},{row[3]},{player[0]}'
         add_goals(year_dict, year, row[2])
         add_goals(year_dict, year, row[4])
     for year in year_dict:
@@ -73,6 +73,28 @@ def get_goals_by_years():
 
 
 def download(name):
+    content = ''
+    titles = urllib.parse.quote(name)
+    url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
+    with urllib.request.urlopen(url_string) as url:
+        data = json.load(url)
+        pages = data['query']['pages']
+        for key in pages:
+            if key != '-1':
+                revision = pages[key]['revisions'][-1]['*']
+                if revision[0:9] == '#REDIRECT':
+                    content = download(revision[revision.index('[[')+2:revision.index(']]')])
+                else:
+                    try:
+                        start = revision.index('years1')
+                        end = revision.index('nationalyears1')
+                    except:
+                        break
+                    content = revision[start:end]
+    return content
+
+
+def download_2(name, country):
     contents = []
     titles = urllib.parse.quote(name)
     url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
@@ -83,28 +105,26 @@ def download(name):
             if key != '-1':
                 revision = pages[key]['revisions'][-1]['*']
                 if revision[0:9] == '#REDIRECT':
-                    contents = download(revision[revision.index('[[')+2:revision.index(']]')])
+                    contents = download_2(revision[revision.index('[[')+2:revision.index(']]')], country)
                 else:
-                    try:
-                        start = revision.index('years1')
-                        end = revision.index('nationalyears1')
-                    except:
-                        break
-                    contents.append(revision[start:end])
+                    lines = revision.split('\n')
+                    for line in lines:
+                        if 'football' in line:
+                            print(line)
+                    # if len(contents) == 1:
+                    #     print(f'AAAAA {contents[0]}')
     return contents
 
 
-# def download_2(name):
-#     content = []
-#     titles = urllib.parse.quote(name)
-#     url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
-#     with urllib.request.urlopen(url_string) as url:
-#         try:
-#
-#         except:
-#             pass
-#     return content
-
+def download_all():
+    info_set = set()
+    year_dict = get_goals_by_years()
+    for year in year_dict:
+        for player in year_dict[year]:
+            info_set.add(player[0])
+    for info in info_set:
+        year, country, name = info.split(',')
+        print(f'"{name}","{[download(name)]}"')
 
 
 # if __name__ == '__main__':
@@ -124,13 +144,5 @@ def download(name):
 
 
 if __name__ == '__main__':
-    names = set()
-    year_dict = get_goals_by_years()
-    for year in year_dict:
-        print(year_dict[year])
-        # for player in year_dict[year]:
-        #     print(player)
-        #     names.add(player[0])
-    # for name in names:
-    #     print(f'"{name}","{download(name)}"')
-    # print(download('Kudus Mohammed'))
+    download_all()
+    # download('Júnior')
