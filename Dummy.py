@@ -133,8 +133,6 @@ def download_all():
         print(f'"{name}","{[download(name)]}"')
 
 
-
-
 def get_player_countries():
     player_countries = []
     names = []
@@ -200,6 +198,6 @@ def get_empty_players():
 
 
 if __name__ == '__main__':
-    # download_all()
-    get_empty_players()
-    # download('Júnior')
+    year_dict = get_goals_by_years()
+    for year in year_dict:
+        print(f'{year} {year_dict[year]}')
