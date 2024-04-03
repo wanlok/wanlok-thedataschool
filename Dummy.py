@@ -57,7 +57,39 @@ def add_goals(year_dict, year, x):
             name_dict[name] = 1
 
 
+def is_within_period(period, year):
+    if '-' not in period:
+        within_period = period == year
+    elif period[0] == '-':
+        within_period = period[1:] == year
+    elif period[-1] == '-':
+        within_period = year >= period[:len(period) - 1]
+    else:
+        slices = period.split('-')
+        within_period = len(slices) == 2 and int(slices[0]) <= int(year) <= int(slices[1])
+    return within_period
+
+
+def get_club(club_dict, name, year):
+    my_list = eval(club_dict[name])
+
+    for club in my_list:
+        period = club['period']
+
+
+        name = club['name']
+
+
+
+
+
 def get_goals_by_years():
+    club_dict = dict()
+    with open('clubs.csv', encoding='utf-8') as csv_file:
+        for row in csv.reader(csv_file, delimiter=','):
+            club_dict[row[0]] = row[1]
+    key = 'Kylian Mbappé'
+    get_club(club_dict, key, 2022)
     year_dict = {}
     for row in get_rows():
         year = row[0]
@@ -99,28 +131,6 @@ def download(country, name, years):
     return content
 
 
-def download_2(name, country):
-    contents = []
-    titles = urllib.parse.quote(name)
-    url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
-    with urllib.request.urlopen(url_string) as url:
-        data = json.load(url)
-        pages = data['query']['pages']
-        for key in pages:
-            if key != '-1':
-                revision = pages[key]['revisions'][-1]['*']
-                if revision[0:9] == '#REDIRECT':
-                    contents = download_2(revision[revision.index('[[')+2:revision.index(']]')], country)
-                else:
-                    lines = revision.split('\n')
-                    for line in lines:
-                        if 'football' in line:
-                            print(line)
-                    # if len(contents) == 1:
-                    #     print(f'AAAAA {contents[0]}')
-    return contents
-
-
 def download_all():
     info_set = set()
     year_dict = get_goals_by_years()
@@ -131,24 +141,6 @@ def download_all():
     for info in info_set:
         country, name = info.split(',')
         print(f'"{name}","{[download(name)]}"')
-
-
-def get_player_countries():
-    player_countries = []
-    names = []
-    year_dict = get_goals_by_years()
-    for year in year_dict:
-        for player in year_dict[year]:
-            names.append(player[0])
-    with open('Player Clubs.csv', encoding='utf-8') as csv_file:
-        for row in csv.reader(csv_file, delimiter=','):
-            target = row[0]
-
-            for name in names:
-                if target in name:
-                    player_countries.append(name)
-                    break
-    return player_countries
 
 
 def get_empty_players():
@@ -176,25 +168,6 @@ def get_empty_players():
                         country_set.add(country)
     for country in country_set:
         print(country)
-
-
-
-
-
-# if __name__ == '__main__':
-#     year_dict = get_goals_by_years()
-#     for year in year_dict:
-#         print(f'{year} {year_dict[year]}')
-
-
-# if __name__ == '__main__':
-#     players = set()
-#     year_dict = get_goals_by_years()
-#     for year in year_dict:
-#         for player in year_dict[year]:
-#             players.add(player[0])
-#     for player in players:
-#         print(player)
 
 
 def get_player_clubs():
@@ -237,6 +210,7 @@ if __name__ == '__main__':
     # for key in my_dict:
     #     print(f'"{key}","{my_dict[key]}"')
 
-    year_dict = get_goals_by_years()
-    for year in year_dict:
-        print(f'{year} {year_dict[year]}')
+    # year_dict = get_goals_by_years()
+    # for year in year_dict:
+    #     print(f'{year} {year_dict[year]}')
+    print(is_within_period('2017-', '2018'))
