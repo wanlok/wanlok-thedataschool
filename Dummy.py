@@ -57,46 +57,47 @@ def add_goals(year_dict, year, x):
             name_dict[name] = 1
 
 
-def is_within_period(period, year):
-    if '-' not in period:
-        within_period = period == year
-    elif period[0] == '-':
-        within_period = period[1:] == year
-    elif period[-1] == '-':
-        within_period = year >= period[:len(period) - 1]
+def is_year_within_range(year, range):
+    if '-' not in range:
+        club_within_year = range == year
+    elif range[0] == '-':
+        club_within_year = range[1:] == year
+    elif range[-1] == '-':
+        club_within_year = year >= range[:len(range) - 1]
     else:
-        slices = period.split('-')
-        within_period = len(slices) == 2 and int(slices[0]) <= int(year) <= int(slices[1])
-    return within_period
+        slices = range.split('-')
+        club_within_year = len(slices) == 2 and int(slices[0]) <= int(year) <= int(slices[1])
+    return club_within_year
 
 
-def get_club(club_dict, name, year):
-    my_list = eval(club_dict[name])
-
-    for club in my_list:
-        period = club['period']
-
-
-        name = club['name']
-
-
-
-
-
-def get_goals_by_years():
+def get_club_dict():
     club_dict = dict()
     with open('clubs.csv', encoding='utf-8') as csv_file:
         for row in csv.reader(csv_file, delimiter=','):
             club_dict[row[0]] = row[1]
-    key = 'Kylian Mbappé'
-    get_club(club_dict, key, 2022)
+    return club_dict
+
+
+def get_club_name(club_dict, year, player_name):
+    club_name = ''
+    for club in eval(club_dict[player_name]):
+        if 'period' in club and is_year_within_range(year, club['period']):
+            club_name = club['name']
+            break
+    return club_name
+
+
+def get_goals_by_years():
     year_dict = {}
+    club_dict = get_club_dict()
     for row in get_rows():
         year = row[0]
         for player in row[2]:
-            player[0] = f'{year},{row[1]},{player[0]}'
+            player_name = player[0]
+            player[0] = f'{year},{row[1]},{player_name},{get_club_name(club_dict, year, player_name)}'
         for player in row[4]:
-            player[0] = f'{year},{row[3]},{player[0]}'
+            player_name = player[0]
+            player[0] = f'{year},{row[3]},{player_name},{get_club_name(club_dict, year, player_name)}'
         add_goals(year_dict, year, row[2])
         add_goals(year_dict, year, row[4])
     for year in year_dict:
@@ -209,8 +210,6 @@ if __name__ == '__main__':
     # my_dict = get_player_clubs()
     # for key in my_dict:
     #     print(f'"{key}","{my_dict[key]}"')
-
-    # year_dict = get_goals_by_years()
-    # for year in year_dict:
-    #     print(f'{year} {year_dict[year]}')
-    print(is_within_period('2017-', '2018'))
+    year_dict = get_goals_by_years()
+    for year in year_dict:
+        print(f'{year} {year_dict[year]}')
