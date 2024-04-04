@@ -70,12 +70,79 @@ def is_year_within_range(year, range):
     return club_within_year
 
 
-def get_club_dict():
-    club_dict = dict()
+def get_player_club_dict():
+    player_club_dict = dict()
     with open('clubs.csv', encoding='utf-8') as csv_file:
         for row in csv.reader(csv_file, delimiter=','):
-            club_dict[row[0]] = row[1]
-    return club_dict
+            player_club_dict[row[0]] = row[1]
+    return player_club_dict
+
+
+def download_wikipedia_content(titles):
+    content = ''
+    titles = urllib.parse.quote(titles)
+    url_string = f'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={titles}&rvprop=content&format=json'
+    with urllib.request.urlopen(url_string) as url:
+        query = json.load(url)['query']
+        if 'pages' in query:
+            pages = query['pages']
+            for page in pages:
+                if page != '-1':
+                    content = pages[page]['revisions'][-1]['*']
+                    if content[0:9].lower() == '#redirect':
+                        content = download_wikipedia_content(content[content.index('[[') + 2:content.index(']]')])
+    return content
+
+
+def extract_league(club):
+    content = download_wikipedia_content(club)
+
+    # target = None
+    #
+    # print(club)
+    # for pattern in patterns:
+    #     if pattern in content.lower():
+    #         content = content[content.index(pattern) + len(pattern):]
+    #         end = content.index('\n')
+    #         try:
+    #             target = content[:end]
+    #         except:
+    #             pass
+
+    # if target is None:
+    #     print(f'"{club}"')
+    # else:
+    #     print(f'"{club}","{target}"')
+
+    print(f'"{club}","{[content]}"')
+
+
+def download_club_info_1():
+    club_set = set()
+    with open('clubs.csv', encoding='utf-8') as csv_file:
+        for row in csv.reader(csv_file, delimiter=','):
+            for club in eval(row[1]):
+                club_set.add(club['name'])
+
+    downloaded_club_set = set()
+    with open('league.csv', encoding='utf-8') as csv_file:
+        for row in csv.reader(csv_file, delimiter=','):
+            downloaded_club_set.add(row[0])
+
+    print(f'{len(club_set)} {len(downloaded_club_set)}')
+
+    for club in club_set:
+        if club not in downloaded_club_set:
+            extract_league(club)
+
+def download_club_info_3():
+    club_set = set()
+    with open('league 2.csv', encoding='utf-8') as csv_file:
+        for row in csv.reader(csv_file, delimiter=','):
+            if len(row) == 1 or len(row[1].split('=')[1]) == 0:
+                club_set.add(row[0])
+    for club in club_set:
+        print(club)
 
 
 def get_club_name(club_dict, year, player_name):
@@ -89,15 +156,17 @@ def get_club_name(club_dict, year, player_name):
 
 def get_goals_by_years():
     year_dict = {}
-    club_dict = get_club_dict()
+    player_club_dict = get_player_club_dict()
     for row in get_rows():
         year = row[0]
         for player in row[2]:
             player_name = player[0]
-            player[0] = f'{year},{row[1]},{player_name},{get_club_name(club_dict, year, player_name)}'
+            club_name = get_club_name(player_club_dict, year, player_name)
+            player[0] = f'{year},{row[1]},{player_name},{club_name}'
         for player in row[4]:
             player_name = player[0]
-            player[0] = f'{year},{row[3]},{player_name},{get_club_name(club_dict, year, player_name)}'
+            club_name = get_club_name(player_club_dict, year, player_name)
+            player[0] = f'{year},{row[3]},{player_name},{club_name}'
         add_goals(year_dict, year, row[2])
         add_goals(year_dict, year, row[4])
     for year in year_dict:
@@ -210,6 +279,8 @@ if __name__ == '__main__':
     # my_dict = get_player_clubs()
     # for key in my_dict:
     #     print(f'"{key}","{my_dict[key]}"')
-    year_dict = get_goals_by_years()
-    for year in year_dict:
-        print(f'{year} {year_dict[year]}')
+    # year_dict = get_goals_by_years()
+    # for year in year_dict:
+    #     print(f'{year} {year_dict[year]}')
+    download_club_info_1()
+    # download_club_info_3()
