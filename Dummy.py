@@ -1,6 +1,9 @@
 import csv
 import json
+import re
 import urllib.request
+import geograpy
+import pycountry
 
 
 def get_name_and_time(x):
@@ -94,27 +97,47 @@ def download_wikipedia_content(titles):
     return content
 
 
+def count_occurrences(target, content):
+    count = 0
+    target = target.lower()
+    while target in content:
+        count = count + 1
+        content = content[content.index(target) + len(target):]
+    return count
+
+
 def extract_league(club):
+    count_dict = dict()
+
     content = download_wikipedia_content(club)
+    content = content.lower()
+    content = re.compile(r'[^a-z\s]').sub(' ', content) # alphabet letter or a space
+    content = re.compile(r'\s+').sub(' ', content) # consecutive spaces
+    content = content.replace('\n', '')
 
-    # target = None
-    #
-    # print(club)
-    # for pattern in patterns:
-    #     if pattern in content.lower():
-    #         content = content[content.index(pattern) + len(pattern):]
-    #         end = content.index('\n')
-    #         try:
-    #             target = content[:end]
-    #         except:
-    #             pass
+    countries = []
+    for country in pycountry.countries:
+        countries.append({
+            'name_1': country.name,
+            'name_2': country.official_name,
+            'name_3': country.common_name
+        })
 
-    # if target is None:
-    #     print(f'"{club}"')
-    # else:
-    #     print(f'"{club}","{target}"')
+    countries.append({'name_1': 'England', 'name_2': 'England', 'name_3': 'England'})
+    countries.append({'name_1': 'Scotland', 'name_2': 'Scotland', 'name_3': 'Scotland'})
+    countries.append({'name_1': 'Wales', 'name_2': 'Wales', 'name_3': 'Wales'})
+    countries.append({'name_1': 'Northern Ireland', 'name_2': 'Northern Ireland', 'name_3': 'Northern Ireland'})
+    countries.append({'name_1': 'America', 'name_2': 'America', 'name_3': 'America'})
+    countries.append({'name_1': 'Yugoslavia', 'name_2': 'Yugoslavia', 'name_3': 'Yugoslavia'})
+    countries.append({'name_1': 'South Korea', 'name_2': 'South Korea', 'name_3': 'South Korea'})
+    countries.append({'name_1': 'North Korea', 'name_2': 'North Korea', 'name_3': 'North Korea'})
 
-    print(f'"{club}","{[content]}"')
+    for country in countries:
+        count = count_occurrences(country['name_1'], content) + count_occurrences(country['name_2'], content) + count_occurrences(country['name_3'], content)
+        if count > 0:
+            count_dict[country['name_1']] = count
+
+    print(f'"{club}","{count_dict}"')
 
 
 def download_club_info_1():
@@ -283,4 +306,6 @@ if __name__ == '__main__':
     # for year in year_dict:
     #     print(f'{year} {year_dict[year]}')
     download_club_info_1()
+    # extract_league('Jeonbuk Hyundai Motors FC')
+
     # download_club_info_3()
