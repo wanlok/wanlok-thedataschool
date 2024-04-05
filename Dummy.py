@@ -106,6 +106,10 @@ def count_occurrences(target, content):
     return count
 
 
+# def get_largest_and_second_largest_count(dict):
+#     for
+
+
 def extract_league(club):
     count_dict = dict()
 
@@ -131,6 +135,7 @@ def extract_league(club):
     countries.append({'name_1': 'Yugoslavia', 'name_2': 'Yugoslavia', 'name_3': 'Yugoslavia'})
     countries.append({'name_1': 'South Korea', 'name_2': 'South Korea', 'name_3': 'South Korea'})
     countries.append({'name_1': 'North Korea', 'name_2': 'North Korea', 'name_3': 'North Korea'})
+    countries.append({'name_1': 'Turkey', 'name_2': 'Turkey', 'name_3': 'Turkey'})
 
     for country in countries:
         count = count_occurrences(country['name_1'], content) + count_occurrences(country['name_2'], content) + count_occurrences(country['name_3'], content)
@@ -160,12 +165,10 @@ def download_club_info_1():
 
 def download_club_info_3():
     club_set = set()
-    with open('league 2.csv', encoding='utf-8') as csv_file:
+    with open('league.csv', encoding='utf-8') as csv_file:
         for row in csv.reader(csv_file, delimiter=','):
-            if len(row) == 1 or len(row[1].split('=')[1]) == 0:
-                club_set.add(row[0])
-    for club in club_set:
-        print(club)
+            if row[1] == '{}':
+                print(row[0])
 
 
 def get_club_name(club_dict, year, player_name):
@@ -307,5 +310,4 @@ if __name__ == '__main__':
     #     print(f'{year} {year_dict[year]}')
     download_club_info_1()
     # extract_league('Jeonbuk Hyundai Motors FC')
-
     # download_club_info_3()
