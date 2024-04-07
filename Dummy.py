@@ -183,16 +183,19 @@ def get_club_name(club_dict, year, player_name):
 def get_goals_by_years():
     year_dict = {}
     player_club_dict = get_player_club_dict()
+    club_country_dict = get_club_country_dict()
     for row in get_rows():
         year = row[0]
         for player in row[2]:
             player_name = player[0]
             club_name = get_club_name(player_club_dict, year, player_name)
-            player[0] = f'{year},{row[1]},{player_name},{club_name}'
+            club_country = club_country_dict[club_name]
+            player[0] = f'"{year}","{row[1]}","{player_name}","{club_name}","{club_country}"'
         for player in row[4]:
             player_name = player[0]
             club_name = get_club_name(player_club_dict, year, player_name)
-            player[0] = f'{year},{row[3]},{player_name},{club_name}'
+            club_country = club_country_dict[club_name]
+            player[0] = f'"{year}","{row[3]}","{player_name}","{club_name}","{club_country}"'
         add_goals(year_dict, year, row[2])
         add_goals(year_dict, year, row[4])
     for year in year_dict:
@@ -312,35 +315,44 @@ def get_country(country_dict):
     return max_country
 
 
-def dummy():
-
-    league_missing = dict()
-    with open('league missing.csv', encoding='utf-8') as csv_file:
+def get_club_country_dict():
+    club_country_dict = dict()
+    club_country_dict[''] = ''
+    club_country_mapping_dict = dict()
+    club_country_count_dict = dict()
+    with open('club_country_mapping.csv', encoding='utf-8') as csv_file:
         for row in csv.reader(csv_file, delimiter=','):
-            league_missing[row[0]] = row[1]
-
-    league = dict()
-    with open('league.csv', encoding='utf-8') as csv_file:
+            club_country_mapping_dict[row[0]] = row[1]
+    with open('club_country_count.csv', encoding='utf-8') as csv_file:
         for row in csv.reader(csv_file, delimiter=','):
-            league[row[0]] = eval(row[1])
-
-    for team in league:
-        country = get_country(league[team])
+            club_country_count_dict[row[0]] = eval(row[1])
+    for club_name in club_country_count_dict:
+        country = get_country(club_country_count_dict[club_name])
         if country is None:
-            country = league_missing[team]
+            country = club_country_mapping_dict[club_name]
         if ',' in country:
             country = country.split(',')[0]
-        print(f'"{team}","{country}"')
+        club_country_dict[club_name] = country
+    return club_country_dict
 
 
 if __name__ == '__main__':
+
+    # print([download(None, 'Juan_Carreño_(Chilean_footballer)', None)])
+
     # my_dict = get_player_clubs()
     # for key in my_dict:
     #     print(f'"{key}","{my_dict[key]}"')
+
     # year_dict = get_goals_by_years()
     # for year in year_dict:
     #     print(f'{year} {year_dict[year]}')
+
+    year_dict = get_goals_by_years()
+    for year in year_dict:
+        print(f'{year} {year_dict[year]}')
+
     # download_club_info_1()
     # extract_league('Jeonbuk Hyundai Motors FC')
     # download_club_info_3()
-    dummy()
+    # dummy()
