@@ -301,6 +301,38 @@ def get_player_clubs():
     return player_dict
 
 
+def get_country(country_dict):
+    max_country = None
+    max_count = None
+    for country in country_dict:
+        count = country_dict[country]
+        if max_count is None or count > max_count:
+            max_country = country
+            max_count = count
+    return max_country
+
+
+def dummy():
+
+    league_missing = dict()
+    with open('league missing.csv', encoding='utf-8') as csv_file:
+        for row in csv.reader(csv_file, delimiter=','):
+            league_missing[row[0]] = row[1]
+
+    league = dict()
+    with open('league.csv', encoding='utf-8') as csv_file:
+        for row in csv.reader(csv_file, delimiter=','):
+            league[row[0]] = eval(row[1])
+
+    for team in league:
+        country = get_country(league[team])
+        if country is None:
+            country = league_missing[team]
+        if ',' in country:
+            country = country.split(',')[0]
+        print(f'"{team}","{country}"')
+
+
 if __name__ == '__main__':
     # my_dict = get_player_clubs()
     # for key in my_dict:
@@ -308,6 +340,7 @@ if __name__ == '__main__':
     # year_dict = get_goals_by_years()
     # for year in year_dict:
     #     print(f'{year} {year_dict[year]}')
-    download_club_info_1()
+    # download_club_info_1()
     # extract_league('Jeonbuk Hyundai Motors FC')
     # download_club_info_3()
+    dummy()
