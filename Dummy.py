@@ -136,6 +136,7 @@ def extract_league(club):
     countries.append({'name_1': 'South Korea', 'name_2': 'South Korea', 'name_3': 'South Korea'})
     countries.append({'name_1': 'North Korea', 'name_2': 'North Korea', 'name_3': 'North Korea'})
     countries.append({'name_1': 'Turkey', 'name_2': 'Turkey', 'name_3': 'Turkey'})
+    countries.append({'name_1': 'Russia', 'name_2': 'Russia', 'name_3': 'Russia'})
 
     for country in countries:
         count = count_occurrences(country['name_1'], content) + count_occurrences(country['name_2'], content) + count_occurrences(country['name_3'], content)
@@ -305,14 +306,16 @@ def get_player_clubs():
 
 
 def get_country(country_dict):
-    max_country = None
+    max_country_1 = None
+    max_country_2 = None
     max_count = None
     for country in country_dict:
         count = country_dict[country]
         if max_count is None or count > max_count:
-            max_country = country
+            max_country_2 = max_country_1
+            max_country_1 = country
             max_count = count
-    return max_country
+    return max_country_1, max_country_2
 
 
 def get_club_country_dict():
@@ -327,18 +330,19 @@ def get_club_country_dict():
         for row in csv.reader(csv_file, delimiter=','):
             club_country_count_dict[row[0]] = eval(row[1])
     for club_name in club_country_count_dict:
-        country = get_country(club_country_count_dict[club_name])
-        if country is None:
-            country = club_country_mapping_dict[club_name]
-        if ',' in country:
-            country = country.split(',')[0]
-        club_country_dict[club_name] = country
+        country_1, country_2 = get_country(club_country_count_dict[club_name])
+        if country_1 is None:
+            country_1 = club_country_mapping_dict[club_name]
+        if ',' in country_1:
+            country_1 = country_1.split(',')[0]
+        # if country_1 == 'Oman':
+        #     print(f'{club_name}    {country_1}    {country_2}')
+        club_country_dict[club_name] = country_1
     return club_country_dict
 
 
 if __name__ == '__main__':
-
-    # print([download(None, 'Juan_Carreño_(Chilean_footballer)', None)])
+    # print([download(None, 'Fred_(footballer,_born_1983)', None)])
 
     # my_dict = get_player_clubs()
     # for key in my_dict:
@@ -350,9 +354,15 @@ if __name__ == '__main__':
 
     year_dict = get_goals_by_years()
     for year in year_dict:
-        print(f'{year} {year_dict[year]}')
+        for row in year_dict[year]:
+            print(f'{row[0]},{row[1]}')
 
     # download_club_info_1()
     # extract_league('Jeonbuk Hyundai Motors FC')
     # download_club_info_3()
-    # dummy()
+
+    # club_country_dict = get_club_country_dict()
+    # for club in club_country_dict:
+    #     if club_country_dict[club] == 'Russia' and 'Moscow' not in club and 'Petersburg' not in club:
+    #         print(f'{club}')
+
