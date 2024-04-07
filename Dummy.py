@@ -188,15 +188,21 @@ def get_goals_by_years():
     for row in get_rows():
         year = row[0]
         for player in row[2]:
+            country_1 = row[1]
+            country_2 = get_special_country_name(country_1)
             player_name = player[0]
             club_name = get_club_name(player_club_dict, year, player_name)
-            club_country = club_country_dict[club_name]
-            player[0] = f'"{year}","{row[1]}","{player_name}","{club_name}","{club_country}"'
+            club_country_1 = club_country_dict[club_name]
+            club_country_2 = get_special_country_name(club_country_1)
+            player[0] = f'"{year}","{country_1}","{country_2}","{player_name}","{club_name}","{club_country_1}","{club_country_2}"'
         for player in row[4]:
+            country_1 = row[3]
+            country_2 = get_special_country_name(country_1)
             player_name = player[0]
             club_name = get_club_name(player_club_dict, year, player_name)
-            club_country = club_country_dict[club_name]
-            player[0] = f'"{year}","{row[3]}","{player_name}","{club_name}","{club_country}"'
+            club_country_1 = club_country_dict[club_name]
+            club_country_2 = get_special_country_name(club_country_1)
+            player[0] = f'"{year}","{country_1}","{country_2}","{player_name}","{club_name}","{club_country_1}","{club_country_2}"'
         add_goals(year_dict, year, row[2])
         add_goals(year_dict, year, row[4])
     for year in year_dict:
@@ -316,6 +322,12 @@ def get_country(country_dict):
             max_country_1 = country
             max_count = count
     return max_country_1, max_country_2
+
+
+def get_special_country_name(name):
+    if name in ['England', 'Scotland', 'Wales', 'Northern Ireland']:
+        name = 'United Kingdom'
+    return name
 
 
 def get_club_country_dict():
