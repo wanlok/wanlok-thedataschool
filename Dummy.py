@@ -325,8 +325,27 @@ def get_country(country_dict):
 
 
 def get_special_country_name(name):
+    # countries.append({'name_1': 'England', 'name_2': 'England', 'name_3': 'England'})
+    # countries.append({'name_1': 'Scotland', 'name_2': 'Scotland', 'name_3': 'Scotland'})
+    # countries.append({'name_1': 'Wales', 'name_2': 'Wales', 'name_3': 'Wales'})
+    # countries.append({'name_1': 'Northern Ireland', 'name_2': 'Northern Ireland', 'name_3': 'Northern Ireland'})
+    # countries.append({'name_1': 'America', 'name_2': 'America', 'name_3': 'America'})
+    # countries.append({'name_1': 'Yugoslavia', 'name_2': 'Yugoslavia', 'name_3': 'Yugoslavia'})
+    # countries.append({'name_1': 'South Korea', 'name_2': 'South Korea', 'name_3': 'South Korea'})
+    # countries.append({'name_1': 'North Korea', 'name_2': 'North Korea', 'name_3': 'North Korea'})
+    # countries.append({'name_1': 'Turkey', 'name_2': 'Turkey', 'name_3': 'Turkey'})
+    # countries.append({'name_1': 'Russia', 'name_2': 'Russia', 'name_3': 'Russia'})
+
     if name in ['England', 'Scotland', 'Wales', 'Northern Ireland']:
         name = 'United Kingdom'
+    elif name in ['Korea Republic']:
+        name = 'South Korea'
+    elif name in ['Korea DPR']:
+        name = 'North Korea'
+    elif name in ['Türkiye']:
+        name = 'Turkey'
+    elif name in ['America']:
+        name = 'United States'
     return name
 
 
