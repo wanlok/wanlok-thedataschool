@@ -372,6 +372,18 @@ def get_club_country_dict():
     return club_country_dict
 
 
+def get_score_list():
+    for row in get_rows():
+        year, country_1, scorers_1, country_2, scorers_2 = row
+        for scorer in scorers_1:
+            name, minute_1, minute_2 = scorer
+            print(f'"{year}","{name}","{country_2}","{minute_1}","{minute_2}"')
+        for scorer in scorers_2:
+            name, minute_1, minute_2 = scorer
+            print(f'"{year}","{name}","{country_1}","{minute_1}","{minute_2}"')
+
+
+
 if __name__ == '__main__':
     # print([download(None, 'Fred_(footballer,_born_1983)', None)])
 
@@ -383,10 +395,10 @@ if __name__ == '__main__':
     # for year in year_dict:
     #     print(f'{year} {year_dict[year]}')
 
-    year_dict = get_goals_by_years()
-    for year in year_dict:
-        for row in year_dict[year]:
-            print(f'{row[0]},{row[1]}')
+    # year_dict = get_goals_by_years()
+    # for year in year_dict:
+    #     for row in year_dict[year]:
+    #         print(f'{row[0]},{row[1]}')
 
     # download_club_info_1()
     # extract_league('Jeonbuk Hyundai Motors FC')
@@ -397,3 +409,4 @@ if __name__ == '__main__':
     #     if club_country_dict[club] == 'Russia' and 'Moscow' not in club and 'Petersburg' not in club:
     #         print(f'{club}')
 
+    get_score_list()
