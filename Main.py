@@ -383,7 +383,6 @@ def get_score_list():
             print(f'"{year}","{name}","{country_1}","{minute_1}","{minute_2}"')
 
 
-
 if __name__ == '__main__':
     # print([download(None, 'Fred_(footballer,_born_1983)', None)])
 
