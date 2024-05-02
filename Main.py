@@ -383,6 +383,28 @@ def get_score_list():
             print(f'"{year}","{name}","{country_1}","{minute_1}","{minute_2}"')
 
 
+def get_top_four():
+    with open('matches_1930_2022.csv', encoding='utf-8') as csv_file:
+        for row in csv.reader(csv_file, delimiter=','):
+            round = row[15]
+            if round in ['Third-place match', 'Final']:
+                home_team = row[0]
+                home_score = row[2]
+                home_penalty = row[4]
+                away_team = row[1]
+                away_score = row[5]
+                away_penalty = row[7]
+                year = row[21]
+                if len(home_penalty) > 0 and len(away_penalty) > 0:
+                    x = int(home_penalty)
+                    y = int(away_penalty)
+                else:
+                    x = int(home_score)
+                    y = int(away_score)
+                winner = home_team if x > y else away_team
+                print(f'{home_team} {away_team} {winner} {round} {year}')
+
+
 if __name__ == '__main__':
     # print([download(None, 'Fred_(footballer,_born_1983)', None)])
 
@@ -408,4 +430,5 @@ if __name__ == '__main__':
     #     if club_country_dict[club] == 'Russia' and 'Moscow' not in club and 'Petersburg' not in club:
     #         print(f'{club}')
 
-    get_score_list()
+    # get_score_list()
+    get_top_four()
