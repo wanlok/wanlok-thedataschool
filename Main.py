@@ -324,7 +324,7 @@ def get_country(country_dict):
     return max_country_1, max_country_2
 
 
-def get_special_country_name(name):
+def get_special_country_name(name, ignored=[]):
     # countries.append({'name_1': 'England', 'name_2': 'England', 'name_3': 'England'})
     # countries.append({'name_1': 'Scotland', 'name_2': 'Scotland', 'name_3': 'Scotland'})
     # countries.append({'name_1': 'Wales', 'name_2': 'Wales', 'name_3': 'Wales'})
@@ -336,15 +336,15 @@ def get_special_country_name(name):
     # countries.append({'name_1': 'Turkey', 'name_2': 'Turkey', 'name_3': 'Turkey'})
     # countries.append({'name_1': 'Russia', 'name_2': 'Russia', 'name_3': 'Russia'})
 
-    if name in ['England', 'Scotland', 'Wales', 'Northern Ireland']:
+    if name in ['England', 'Scotland', 'Wales', 'Northern Ireland'] and 'United Kingdom' not in ignored:
         name = 'United Kingdom'
-    elif name in ['Korea Republic']:
+    elif name in ['Korea Republic'] and 'South Korea' not in ignored:
         name = 'South Korea'
-    elif name in ['Korea DPR']:
+    elif name in ['Korea DPR'] and 'North Korea' not in ignored:
         name = 'North Korea'
-    elif name in ['Türkiye']:
+    elif name in ['Türkiye'] and 'Turkey' not in ignored:
         name = 'Turkey'
-    elif name in ['America']:
+    elif name in ['America'] and 'United States' not in ignored:
         name = 'United States'
     return name
 
@@ -383,15 +383,16 @@ def get_score_list():
             print(f'"{year}","{name}","{country_1}","{minute_1}","{minute_2}"')
 
 
-def get_top_four():
+def print_top_four():
+    top_four_dict = dict()
     with open('matches_1930_2022.csv', encoding='utf-8') as csv_file:
         for row in csv.reader(csv_file, delimiter=','):
             round = row[15]
             if round in ['Third-place match', 'Final']:
-                home_team = row[0]
+                home_team = get_special_country_name(row[0], ["United Kingdom"])
                 home_score = row[2]
                 home_penalty = row[4]
-                away_team = row[1]
+                away_team = get_special_country_name(row[1], ["United Kingdom"])
                 away_score = row[5]
                 away_penalty = row[7]
                 year = row[21]
@@ -401,8 +402,29 @@ def get_top_four():
                 else:
                     x = int(home_score)
                     y = int(away_score)
-                winner = home_team if x > y else away_team
-                print(f'{home_team} {away_team} {winner} {round} {year}')
+                if year not in top_four_dict:
+                    top_four_list = [None, None, None, None]
+                    top_four_dict[year] = top_four_list
+                else:
+                    top_four_list = top_four_dict[year]
+                if round == 'Final':
+                    if x > y:
+                        top_four_list[0] = home_team
+                        top_four_list[1] = away_team
+                    else:
+                        top_four_list[0] = away_team
+                        top_four_list[1] = home_team
+                else:
+                    if x > y:
+                        top_four_list[2] = home_team
+                        top_four_list[3] = away_team
+                    else:
+                        top_four_list[2] = away_team
+                        top_four_list[3] = home_team
+    top_four_dict['1930'] = ['Uruguay', 'Argentina', 'United States', 'Yugoslavia']
+    for year in top_four_dict:
+        first, second, third, fourth = top_four_dict[year]
+        print(f'"{year}","{first}","{second}","{third}","{fourth}"')
 
 
 if __name__ == '__main__':
@@ -431,4 +453,4 @@ if __name__ == '__main__':
     #         print(f'{club}')
 
     # get_score_list()
-    get_top_four()
+    print_top_four()
